@@ -1,0 +1,1432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BetW Application</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Socket.IO CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.js"></script>
+</head>
+<body>
+
+     <!-- Top Toast Notification Container -->
+    <div id="toastNotification" class="toast-notification">
+        <span id="toastMessage">Notification message here</span>
+    </div>
+
+    <!-- Custom Confirmation Modal Overlay -->
+    <div id="confirmModal" class="custom-modal-overlay">
+        <div class="custom-modal-card">
+            <h4 id="confirmModalTitle">Confirm Action</h4>
+            <p id="confirmModalMessage">Are you sure you want to proceed?</p>
+            <div class="custom-modal-actions">
+                <button id="btnConfirmCancel" class="btn-modal-cancel">Cancel</button>
+                <button id="btnConfirmOk" class="btn-modal-ok">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- UNAUTHENTICATED LANDING SCREEN -->
+    <div id="landingScreen" class="body1">
+        <button class="menu-btn" aria-label="Toggle Menu">
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
+        </button>
+        <h1 class="h1">bet<span class="highlight">W</span></h1>
+        <h2 class="welcome">Just than betting</h2>
+        <div class="about">
+            BetW is your best and most trusted betting platform for online sports betting, With the best football odds and bet on your favorite fixtures on betW and multiply your winnings and enjoy limitless bonusses and free bets, all only in betW.
+            <br><label class="company">prl.me is a product of prl.me inc.</label>
+        </div>
+        <div class="imagehome"></div>
+        <label class="option">Click to sign in or create an account</label><br>
+        <button id="loginButton" class="loginbutton">Sign in</button>
+        <button id="signupButton" class="signupbutton">Sign Up</button><br>
+        <button id="resetpassword" class="forgotpassword">Forgotten Password?</button>
+        <div class="disclaimer">
+            This site is only for persons of 18+ years.All activities carroed out in this site may result to loss of money.betw and its founders are not liable for any losses made by users in gambling activities carried out in this app.betW has power to responsibly audit,change or suspend data, information and users respectively.Gambling may result to adverse financial crash if not taken responsibly! Multiply your winnings and enjoy limitless bonusses and free gifts from betW.
+        </div>
+        <div class="contacts">
+            Contacts us:<br>+254116299911 or 0738944782<br>P.O BOX 400-01000 NAIROBI, KENYA<br>
+            <button class="email">email:primebetske@gmail.com</button>
+        </div>
+        <div class="social-links">
+            <a href="https://wa.me/254116299911?text=Hello%20betW%20support" target="_blank" class="social-icon whatsapp" aria-label="WhatsApp">
+                <i class="fa-brands fa-whatsapp"></i>
+            </a>
+            <a href="https://www.instagram.com/_b.e.t.s_?stkn=djEybHFiaDQwNW0x" target="_blank" class="social-icon instagram" aria-label="Instagram">
+                <i class="fa-brands fa-instagram"></i>
+            </a>
+            <a href="https://x.com" target="_blank" class="social-icon x-twitter" aria-label="X">
+                <i class="fa-brands fa-x-twitter"></i>
+            </a>
+            <a href="https://facebook.com" target="_blank" class="social-icon facebook" aria-label="Facebook">
+                <i class="fa-brands fa-facebook-f"></i>
+            </a>
+        </div>
+        <div class="licence">
+            <label>LICENCE</label><br>
+            <div class="licence-content">
+                <label>The Operator of this platform, is licensed and regulated by the Betting Control and Licensing Board under License number BP-987655.</label>
+            </div>
+            <div class="line"></div>
+        </div>   
+    </div>
+
+    <!-- LOGGED IN MAIN APP VIEW -->
+    <div id="appScreen" class="main-app" style="display: none;">
+
+        <!-- Top Dashboard Bar -->
+        <div class="top-header">
+            <!-- Left Section: Navigation & Brand -->
+            <div class="header-left">
+                <button id="menuBtn" class="home-btn" aria-label="Toggle Menu">
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                </button>
+                <div class="top-left-brand">bet<span class="highlight">w</span></div> 
+            </div>
+
+            <!-- Right Section: Grouped into vertical columns -->
+            <div class="header-right">
+        
+                <!-- Column 1: Country Selector -->
+                <div class="header-col middle-col">
+                    <select id="countryBtn" class="countrybutton">
+                        <option value="1">🇰🇪 Kenya</option>
+                    </select>
+                </div>
+
+                <!-- Column 2: Financial Actions (Deposit + Balance) -->
+                <div class="header-col financial-col">
+                    <div class="deposit-wrapper">
+                        <button id="depositbuttonhome" class="depositbuttonhome">
+                            Deposit
+                            <span class="bonus-badge">Bonus</span>
+                        </button>
+                    </div>
+            
+                    <div class="top-user-balance">
+                        <svg class="wallet-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M21 7.25H3a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h18a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2zm-1 6.5a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5zM19 3.75H5a1 1 0 0 0 0 2h14a1 1 0 0 0 0-2z"/>
+                        </svg>
+                        <div class="balance-details">
+                            <span class="balance-label">Balance</span>
+                            <div class="balance-value">
+                                <span id="dashBalance">0.00</span>
+                                <span class="currency">KES</span>
+                            </div>
+                        </div>
+                        <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                    </div>
+                </div>
+                <!-- Column 3: Auth Buttons (Far Right) -->
+                <div class="header-col auth-col">
+                    <button id="loginbutton" class="loginbuttonhome">
+                        Sign in
+                        <span id="loginBadge" class="auth-badge">!</span>
+                    </button>
+                    <button id="signupBtn" class="signupbuttonhome">Sign up</button>
+                </div>                
+            </div>
+        </div>
+        
+        <!-- Home View -->
+        <div id="pageHome" class="page-view active">
+            <!-- Main Scrollable Categories -->
+            <div class="scroll-category-bar">
+                <button class="cat-chip active"><i class="fa-solid fa-trophy"></i> Sports</button>    
+                <button class="cat-chip" onclick="window.location.href='/aviator'"><i class="fa-solid fa-plane"></i> Aviator</button>
+                <button class="cat-chip" onclick="window.location.href='/casino'"><i class="fa-solid fa-dice"></i> Casino</button>
+                <button class="cat-chip" onclick="window.location.href='/jackpot'"><i class="fa-solid fa-coins"></i> Jackpot</button>
+                <button class="cat-chip" onclick="window.location.href='/crash'"><i class="fa-solid fa-chart-line"></i> Crash</button>
+                <button class="cat-chip"><i class="fa-solid fa-ellipsis"></i> Others</button>
+            </div>
+
+            
+            <!-- Search Bar -->
+            <div class="search-container">
+                <div class="search-input-wrap">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="searchInput" placeholder="Search matches by team name...">
+                </div>
+            </div>
+
+            <!-- Sports Sub-sorting Scrollable -->
+            <div class="scroll-sports-bar">
+                <button class="sport-chip active" data-sport="soccer"><i class="fa-solid fa-futbol"></i> Soccer</button>
+                <button class="sport-chip" data-sport="live"><i class="fa-solid fa-futbol"></i> Live</button>
+                <button class="sport-chip" data-sport="upcoming"><i class="fa-solid fa-time"></i> Upcoming</button>
+                <button class="sport-chip" data-sport="basketball"><i class="fa-solid fa-basketball"></i> Basketball</button>
+                <button class="sport-chip" data-sport="volleyball"><i class="fa-solid fa-volleyball"></i> Volleyball</button>
+                <button class="sport-chip" data-sport="cricket"><i class="fa-solid fa-baseball"></i> Cricket</button>
+                <button class="sport-chip" data-sport="tennis"><i class="fa-solid fa-baseball-bat-ball"></i> Tennis</button>
+            </div>
+
+            <!-- Advertisement Banner Carousel -->
+            <div class="banner-carousel">
+                <img src="/static/imageone.jpeg" class="banner-slide active" alt="Promo  1">
+                <img src="/static/imagetwo.jpg" class="banner-slide" alt="Promo 2">
+                <img src="/static/imagethree.jpg" class="banner-slide" alt="Promo 3">
+                <img src="/static/imagefour.jpeg" class="banner-slide" alt="Promo 4">
+                <img src="/static/imagefive.jpg" class="banner-slide" alt="Promo 5">
+                <img src="/static/imagesix.jpeg" class="banner-slide" alt="Promo 6">
+            </div>
+
+            <!-- Betika Style Matches Header & Cards -->
+            <div class="matches-section">
+                <div class="matches-header">
+                    <span class="matches-title">Matches</span>
+                    <div class="odds-headers">
+                        <span>1</span>
+                        <span>X</span>
+                        <span>2</span>
+                    </div>
+                </div>
+                <div id="matchesContainer">
+                    <!-- Matches rendered dynamically -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Bets View -->
+        <div id="pageBets" class="page-view">
+            <h3>Current Bet Slip</h3>
+            <div class="card-box">
+                <div class="matchbets" id="betSlipSelections">No odds selected yet.</div>
+                <hr>
+                <div>Total Odds: <strong id="slipTotalOdds">0.00</strong></div>
+                <div>
+                    <label>Stake (KES):</label>
+                    <input type="number" id="stakeInput" class="modal-input" value="100" min="10">
+                </div>
+                <div>Possible Payout: <strong id="slipPayout">KES 0.00</strong></div>
+                <button id="btnPlaceBet" class="btn-primary">Place Bet</button>
+            </div>
+
+            <h3>Active Bets</h3>
+            <div class="card-box" id="activeBetsList">
+                <div>Loading bets...</div>
+            </div>
+
+            <h3>Betting History</h3>
+            <div class="card-box" id="historyBetsList">
+                <div>Loading history...</div>
+            </div>
+        </div>
+
+        <!-- Wallet View -->
+        <div id="pageWallet" class="page-view">
+            <h3>M-Pesa Wallet</h3>
+            <div class="card-box">
+                <h4>Deposit Funds via M-Pesa</h4>
+                <input type="number" id="depositAmount" class="modal-input1" placeholder="Amount in KES" value="0">
+                <button id="btnDeposit" class="btn-primary">Deposit Now</button>
+            </div>
+
+            <div class="card-box">
+                <h4>Withdraw Funds via M-Pesa</h4>
+                <input type="number" id="withdrawAmount" class="modal-input1" placeholder="Amount in KES" value="0">
+                <button id="btnWithdraw" class="btn-danger">Withdraw Now</button>
+            </div>
+
+            <h3>Transaction History</h3>
+            <div class="card-box" id="transactionsList">
+                <div>Loading...</div>
+            </div>
+        </div>
+
+        <!-- Account View -->
+        <div id="pageAccount" class="page-view">
+            <h3>User Account</h3>
+            <div class="card-boxb">
+                <p><strong>Phone Number:</strong> <span id="accPhone">-</span></p>
+                <p id="accBalanceRow"><strong>Account Balance:</strong> KES <span id="accBalance">0</span></p>
+                <button id="btnLogout" class="btn-primary">Log Out</button>
+                <button id="btnDeleteAcc" class="btn-danger">Delete Account</button>
+        <div class="licence1">        
+                <label>LICENCE</label><br>
+        </div>
+        <div class="licence-content1">
+            <article>The Operator of this platform, is licensed and regulated by the Betting Control and Licensing Board under License number BP-987655.</label>
+        </div>
+        <div class="line"></div>
+
+        <div class="licence1">        
+                <label>DISCLAIMER</label><br>
+        </div>
+        <div class="disclaimer-content1">
+            <article>This site is only for persons of 18+ years.All activities carroed out in this site may result to loss of money.betw and its founders are not liable for any losses made by users in gambling activities carried out in this app.betW has power to responsibly audit,change or suspend data, information and users respectively.Gambling may result to adverse financial crash if not taken responsibly! Multiply your winnings and enjoy limitless bonusses and free gifts from betW.</label>
+        </div>
+        <div class="line"></div>
+
+        <div class="contacts">
+            Contacts us:<br>+254XXXXXXXX<br>P.O BOX 400-01000 NAIROBI, KENYA<br>
+            <button class="email">email:primebetske@gmail.com</button>
+        </div>
+        <div class="social-links">
+            <a href="https://wa.me/254116299911?text=Hello%20betW%20support" target="_blank" class="social-icon whatsapp" aria-label="WhatsApp">
+                <i class="fa-brands fa-whatsapp"></i>
+            </a>
+            <a href="https://www.instagram.com/_b.e.t.s_?stkn=djEybHFiaDQwNW0x" target="_blank" class="social-icon instagram" aria-label="Instagram">
+                <i class="fa-brands fa-instagram"></i>
+            </a>
+            <a href="https://x.com" target="_blank" class="social-icon x-twitter" aria-label="X">
+                <i class="fa-brands fa-x-twitter"></i>
+            </a>
+            <a href="https://facebook.com" target="_blank" class="social-icon facebook" aria-label="Facebook">
+                <i class="fa-brands fa-facebook-f"></i>
+            </a>
+            <a href="https://facebook.com" target="_blank" class="social-icon tiktok" aria-label="Tiktok">
+                <i class="fa-brands fa-tiktok"></i>
+            </a>
+        </div>
+        </div>
+        </div>
+    
+                <!-- Bottom Navigation Bar -->
+        <div class="bottom-nav">
+            <button class="nav-item active" data-page="pageHome">
+                <i class="fa-solid fa-house"></i>
+                <span>Home</span>
+            </button>
+            <button class="nav-item" data-page="pageBets">
+                <i class="fa-solid fa-ticket"></i>
+                <span>Bets</span>
+                <span class="badge" id="betBadge" style="display:none;">0</span>
+            </button>
+            <button class="nav-item" data-page="pageWallet">
+                <i class="fa-solid fa-wallet"></i>
+                <span>Wallet</span>
+            </button>
+            <button class="nav-item" data-page="pageAccount">
+                <i class="fa-solid fa-user"></i>
+                <span>Account</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Auth Modal -->
+    <div id="authModal" class="modal-overlay">
+        <div class="modal-content">
+            <h3 id="modalTitle">Sign In</h3>
+            <input type="tel" id="authPhone" class="modal-input" placeholder="Phone Number (e.g. 0712345678)">
+            <input type="password" id="authPin" class="modal-input" maxlength="4" placeholder="4-Digit PIN">
+            <button id="submitAuthBtn" class="modal-btn-submit">Submit</button>
+            <button id="closeModalBtn" class="modal-btn-cancel">Cancel</button>
+        </div>
+    </div>
+
+    <!-- OTP Verification Modal -->
+    <div id="otpModal" class="custom-modal-overlay">
+        <div class="custom-modal-card">
+            <h4>Verify Phone Number</h4>
+            <p>Enter the 6-digit code sent to your phone:</p>
+            <input type="text" id="otpCodeInput" maxlength="6" placeholder="123456" style="text-align: center; font-size: 20px; letter-spacing: 4px; padding: 10px; width: 80%; margin-bottom: 15px;">
+            <div class="custom-modal-actions">
+                <button id="btnVerifyOtp" class="btn-modal-ok">Verify</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Side Navigation Drawer -->
+    <div id="sideMenuOverlay" class="side-menu-overlay"></div>
+
+    <div id="sideMenu" class="side-menu">
+        <div class="side-menu-header">
+            <div class="side-menu-brand"><span class="highlight"></span></div>
+            <button id="closeMenuBtn" class="close-menu-btn">&times;</button>
+        </div>
+
+        <ul class="side-menu-list">
+            <li onclick="navigateSideMenu('profile')">My Profile</li>
+            <li onclick="navigateSideMenu('deposit')">Deposit Funds</li>
+            <li onclick="navigateSideMenu('withdraw')">Withdraw Funds</li>
+            <li onclick="navigateSideMenu('history')">Bet History</li>
+            <li onclick="navigateSideMenu('settings')">Settings</li>
+            <li onclick="navigateSideMenu('support')">Help & Support</li>
+            <li onclick="navigateSideMenu('about')">About betW</li>
+            <div>
+                <label class="version">App Version 9.28-1</label>
+            </div>   
+        </ul>
+        
+    </div>
+</body>
+</html>
+    <script>
+    
+    const API_BASE_URL = window.location.origin;
+    document.addEventListener("DOMContentLoaded", () => {
+        // Auth Elements preserved
+        const modal = document.getElementById("authModal");
+        const modalTitle = document.getElementById("modalTitle");
+        const phoneInput = document.getElementById("authPhone");
+        const pinInput = document.getElementById("authPin");
+        const submitBtn = document.getElementById("submitAuthBtn");
+        const closeBtn = document.getElementById("closeModalBtn");
+        const loginBtn = document.getElementById("loginbutton");
+        const depositBtn = document.getElementById("depositbuttonhome");
+        const signupBtn = document.getElementById("signupBtn");
+
+
+        let currentAction = "login";
+        let selectedOdds = []; // Selected items for betslip
+        let currentSport = "soccer";
+        let allMatches = [];
+
+        // Open Modal from Home Header Login Button
+        if (loginBtn && modal) {
+            loginBtn.addEventListener("click", () => {
+                currentAction = "login";
+                if (modalTitle) modalTitle.innerText = "Sign In to betW";
+                modal.style.display = "flex";
+            });
+        }
+
+        // Close Modal Event
+        if (closeBtn && modal) {
+            closeBtn.addEventListener("click", () => {
+                modal.style.display = "none";
+                if (phoneInput) phoneInput.value = "";
+                if (pinInput) pinInput.value = "";
+            });
+        }
+
+        // Open Modal from Home Header signup Button
+        if (signupBtn && modal) {
+            signupBtn.addEventListener("click", () => {
+                currentAction = "signup";
+                if (modalTitle) modalTitle.innerText = "Sign up to betW";
+                modal.style.display = "flex";
+            });
+        }
+
+        // Close Modal Event
+        if (closeBtn && modal) {
+            closeBtn.addEventListener("click", () => {
+                modal.style.display = "none";
+                if (phoneInput) phoneInput.value = "";
+                if (pinInput) pinInput.value = "";
+            });
+        }
+
+        // Open Modal from Home Header deposit Button
+        if (depositBtn) {
+            depositBtn.addEventListener("click", () => {
+                // Hide all page views
+                document.querySelectorAll(".page-view").forEach(page => page.classList.remove("active"));
+        
+                // Show Wallet view
+                const walletPage = document.getElementById("pageWallet");
+                if (walletPage) walletPage.classList.add("active");
+            });
+        }
+
+
+        // Close Modal Event
+        if (closeBtn && modal) {
+            closeBtn.addEventListener("click", () => {
+                modal.style.display = "none";
+                if (phoneInput) phoneInput.value = "";
+                if (pinInput) pinInput.value = "";
+            });
+        }
+
+
+        let pendingPhone = "";
+
+        // 1. Submit Registration
+        async function handleSignup(phone, password) {
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/register`, {
+                method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ phone, password })
+                });
+                const data = await res.json();
+
+                if (res.ok && data.success) {
+                    pendingPhone = phone;
+                    showNotification(data.message);
+                    // Open the OTP Modal
+                    document.getElementById("otpModal").classList.add("active");
+                } else {
+                    showNotification(data.message, true);
+                }
+            } catch (err) {
+                showNotification("Network error during signup.", true);
+            }
+        }
+
+        // 2. Submit OTP Code Verification
+        document.getElementById("btnVerifyOtp").addEventListener("click", async () => {
+            const code = document.getElementById("otpCodeInput").value.trim();
+
+            if (code.length !== 6) {
+                showNotification("Please enter a valid 6-digit code.", true);
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/verify_otp`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ phone: pendingPhone, code: code })
+                });
+                const data = await res.json();
+
+                if (res.ok && data.success) {
+                    document.getElementById("otpModal").classList.remove("active");
+                    showNotification("Verification complete! You can now log in.");
+                } else {
+                    showNotification(data.message, true);
+                }
+            } catch (err) {
+                showNotification("Error verifying code.", true);
+            }
+        });
+
+        // Universal Toast Notification Handler
+        function showNotification(message, isError = false) {
+            const toast = document.getElementById("toastNotification");
+            const toastMsg = document.getElementById("toastMessage");
+
+            if (!toast || !toastMsg) return;
+
+            // Set message text
+            toastMsg.innerText = message;
+
+            // Toggle error class
+            if (isError) {
+                toast.classList.add("error");
+            } else {
+                toast.classList.remove("error");
+            }
+
+            // Slide down
+            toast.classList.add("show");
+
+            // Hide automatically after 5 seconds (5000 ms)
+            setTimeout(() => {
+                toast.classList.remove("show");
+            }, 2000);
+        }
+
+
+        // Promise-based custom confirmation dialog
+        function showConfirm(message, title = "Confirm Action") {
+            return new Promise((resolve) => {
+                const modal = document.getElementById("confirmModal");
+                const modalTitle = document.getElementById("confirmModalTitle");
+                const modalMsg = document.getElementById("confirmModalMessage");
+                const btnOk = document.getElementById("btnConfirmOk");
+                const btnCancel = document.getElementById("btnConfirmCancel");
+
+                modalTitle.innerText = title;
+                modalMsg.innerText = message;
+
+                modal.classList.add("active");
+
+                const handleOk = () => {
+                    cleanup();
+                    resolve(true);
+                };
+
+                const handleCancel = () => {
+                    cleanup();
+                    resolve(false);
+                };
+
+                const cleanup = () => {
+                    modal.classList.remove("active");
+                    btnOk.removeEventListener("click", handleOk);
+                    btnCancel.removeEventListener("click", handleCancel);
+                };
+
+                btnOk.addEventListener("click", handleOk);
+                btnCancel.addEventListener("click", handleCancel);
+            });
+        }
+
+        function formatMatchDateTime(rawDate) {
+        if (!rawDate) return '';
+        const d = new Date(rawDate);
+        // Formats into '27 Sep, 11:30' using the device's local timezone
+        return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }) + ', ' + 
+                d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false });
+        }
+
+
+        
+        
+        // Helper function to update the Sign In button badge UI
+        const updateLoginBadge = (isLoggedIn) => {
+            const badge = document.getElementById("loginBadge");
+            if (!badge) return;
+
+            if (isLoggedIn) {
+                badge.innerText = "✓";
+                badge.classList.add("logged-in");
+            } else {
+                badge.innerText = "!";
+                badge.classList.remove("logged-in");
+            }
+        };
+
+        // Updated Session Verification
+        const initSession = async () => {
+            try {
+                const res = await fetch("/api/user_info");
+                const data = await res.json();
+
+                if (data.success) {
+                    document.getElementById("landingScreen").style.display = "none";
+                    document.getElementById("appScreen").style.display = "flex";
+                    updateUserDisplay(data.phone, data.balance);
+            
+                    // User is logged in -> Show green checkmark
+                    updateLoginBadge(true);
+                } else {
+                    document.getElementById("landingScreen").style.display = "none";
+                    document.getElementById("appScreen").style.display = "flex";
+            
+                    // User is not logged in -> Show red exclamation badge
+                    updateLoginBadge(false);
+                }
+            } catch (err) {
+                console.error("Session check error", err);
+                document.getElementById("landingScreen").style.display = "none";
+                document.getElementById("appScreen").style.display = "flex";
+        
+                // Error / Guest -> Show red exclamation badge
+                updateLoginBadge(false);
+            } finally {
+                loadMatches(currentSport);
+            }
+        };
+
+        const updateUserDisplay = (phone, balance) => {
+            const dashPhone = document.getElementById("dashPhone");
+            const dashBalance = document.getElementById("dashBalance");
+            const accPhone = document.getElementById("accPhone");
+            const accBalance = document.getElementById("accBalance");
+
+            const formattedBal = typeof balance === "number" ? balance.toFixed(2) : "0.00";
+
+            if (dashPhone) dashPhone.innerText = phone || "-";
+            if (dashBalance) dashBalance.innerText = formattedBal;
+            if (accPhone) accPhone.innerText = phone || "-";
+            if (accBalance) accBalance.innerText = formattedBal;
+        };
+
+        // Open auth modals
+        document.getElementById("loginButton").addEventListener("click", () => {
+            currentAction = "login";
+            modalTitle.innerText = "Sign In to betW";
+            modal.style.display = "flex";
+        });
+
+        document.getElementById("signupButton").addEventListener("click", () => {
+            currentAction = "register";
+            modalTitle.innerText = "Create betW Account";
+            modal.style.display = "flex";
+        });
+
+        closeBtn.addEventListener("click", () => {
+            modal.style.display = "none";
+            phoneInput.value = "";
+            pinInput.value = "";
+        });
+
+        submitBtn.addEventListener("click", async () => {
+            const phone = phoneInput.value.trim();
+            const password = pinInput.value.trim();
+
+            if (!phone || password.length !== 4 || isNaN(password)) {
+                showNotification("Please enter a valid phone number and PIN.");
+                return;
+            }
+
+            const endpoint = currentAction === "login" ? "/api/login" : "/api/register";
+
+            try {
+                const response = await fetch(endpoint, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ phone, password })
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    showNotification(result.message);
+                    modal.style.display = "none";
+                    initSession();
+                } else {
+                    showNotification(result.message || "An error occurred.");
+                }
+            } catch (err) {
+                console.error("Error:", err);
+                showNotification("Network error. Please try again.");
+            }
+        });
+
+        // Banner Auto-Slider
+        let slideIndex = 0;
+        const slides = document.querySelectorAll(".banner-slide");
+        setInterval(() => {
+            if (slides.length > 0) {
+                slides[slideIndex].classList.remove("active");
+                slideIndex = (slideIndex + 1) % slides.length;
+                slides[slideIndex].classList.add("active");
+            }
+        }, 3000);
+
+        // Sports Filter switching
+        document.querySelectorAll(".sport-chip").forEach(chip => {
+            chip.addEventListener("click", (e) => {
+                document.querySelectorAll(".sport-chip").forEach(c => c.classList.remove("active"));
+                const target = e.currentTarget;
+                target.classList.add("active");
+                currentSport = target.getAttribute("data-sport");
+                loadMatches(currentSport);
+            });
+        });
+
+        // Search Bar Listener
+        document.getElementById("searchInput").addEventListener("input", (e) => {
+            const term = e.target.value.toLowerCase();
+            const filtered = allMatches.filter(m => 
+                m.home_team.toLowerCase().includes(term) || 
+                m.away_team.toLowerCase().includes(term)
+            );
+            renderMatches(filtered);
+        });
+
+        // Fetch Matches
+        const loadMatches = async (sport) => {
+            try {
+                const res = await fetch(`/api/matches?sport=${sport}`);
+                const data = await res.json();
+                if (data.success) {
+                    allMatches = data.matches;
+                    renderMatches(allMatches);
+                }
+            } catch (e) {
+                console.error("Error loading matches", e);
+            }
+        };
+
+        // Time formatting helper forcing East Africa Time (Kenyan Time, UTC+3)
+        function formatMatchTime(utcString) {
+            if (!utcString) return { date: '', time: '' };
+            const dateObj = new Date(utcString);
+
+            const dateStr = dateObj.toLocaleDateString('en-GB', {
+                day: '2-digit',
+                month: 'short',
+                timeZone: 'Africa/Nairobi'
+            });
+
+            const timeStr = dateObj.toLocaleTimeString('en-GB', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false,
+                timeZone: 'Africa/Nairobi'
+            });
+
+            return { date: dateStr, time: timeStr };
+        }
+
+        // Render matches
+        const renderMatches = (matches) => {
+            const container = document.getElementById("matchesContainer");
+            container.innerHTML = "";
+
+            if (!matches || matches.length === 0) {
+                container.innerHTML = "<div style='padding:20px; text-align:center;'>No matches found.</div>";
+                return;
+            }
+
+            matches.forEach(m => {
+                const card = document.createElement("div");
+                card.className = "match-card";
+        
+                const isHomeSel = selectedOdds.some(o => o.matchId === m.id && o.type === "1");
+                const isDrawSel = selectedOdds.some(o => o.matchId === m.id && o.type === "X");
+                const isAwaySel = selectedOdds.some(o => o.matchId === m.id && o.type === "2");
+
+                // Format times properly to Kenyan Time
+                const formatted = formatMatchTime(m.commence_time);
+                const matchTime = formatted.time || m.start_time || '18:00';
+                const matchDate = formatted.date || m.match_date || 'Today';
+                const leagueBadgeIcon = getLeagueBadge(m.league_name || m.sport);
+
+                card.innerHTML = `
+                    <div class="match-info">
+                        <div class="match-header-line">
+                            <span class="league-badge-wrapper">
+                                ${leagueBadgeIcon}
+                            <span class="league-name">${m.league_name || 'EPL'}</span>
+                            <span class="match-time-tag">${matchDate}, ${matchTime}</span>
+                        </div>
+                        <div class="match-teams-title">
+                            <span class="team-name">${m.home_team}</span>
+                            <span class="vs-divider">vs</span>
+                            <span class="team-name">${m.away_team}</span>
+                        </div>
+                    </div>
+
+                    <div class="match-odds-group">
+                        <button class="odd-btn ${isHomeSel ? 'selected' : ''}" onclick="toggleOdd('${m.id}', '${m.home_team} vs ${m.away_team}', '1', ${m.home_odds})">
+                            <span class="lbl">1</span><span class="val">${m.home_odds}</span>
+                        </button>
+                        <button class="odd-btn ${isDrawSel ? 'selected' : ''}" onclick="toggleOdd('${m.id}', '${m.home_team} vs ${m.away_team}', 'X', ${m.draw_odds})">
+                            <span class="lbl">X</span><span class="val">${m.draw_odds}</span>
+                        </button>
+                        <button class="odd-btn ${isAwaySel ? 'selected' : ''}" onclick="toggleOdd('${m.id}', '${m.home_team} vs ${m.away_team}', '2', ${m.away_odds})">
+                            <span class="lbl">2</span><span class="val">${m.away_odds}</span>
+                        </button>
+                    </div>
+                `;
+
+                container.appendChild(card);
+            });
+        };
+
+        // Helper to get league badge icons
+        function getLeagueBadge(leagueName) {
+            if (!leagueName) return '🏆';
+    
+            const name = leagueName.toLowerCase();
+    
+            // Football / Soccer Leagues
+            if (name.includes('premier league') || name.includes('epl')) {
+                return '<img src="https://crests.football-data.org/PL.png" class="league-icon" alt="EPL">';
+            }
+            if (name.includes('la liga')) {
+                return '<img src="https://crests.football-data.org/PD.png" class="league-icon" alt="La Liga">';
+            }
+            if (name.includes('serie a')) {
+                return '<img src="https://crests.football-data.org/SA.png" class="league-icon" alt="Serie A">';
+            }
+            if (name.includes('bundesliga')) {
+                return '<img src="https://crests.football-data.org/BL1.png" class="league-icon" alt="Bundesliga">';
+            }
+            if (name.includes('champions league')) {
+                return '<img src="https://crests.football-data.org/CL.png" class="league-icon" alt="UCL">';
+            }
+    
+            // Other Sports Fallbacks
+            
+            if (name.includes('nba')) {
+                return '🏀';
+            }
+            
+            if (name.includes('tennis') || name.includes('atp') || name.includes('wta')) {
+                return '🎾';
+            }
+            if (name.includes('volleyball')) {
+                return '🏐';
+            }
+            if (name.includes('cricket')) {
+                return '🏏';
+            }
+
+            // Default icon if none matched
+            return '⚽';
+        }
+ 
+
+
+        // Multi-odds Selection Handler
+        window.toggleOdd = (matchId, matchName, type, val) => {
+            const index = selectedOdds.findIndex(o => o.matchId === matchId && o.type === type);
+            if (index > -1) {
+                selectedOdds.splice(index, 1);
+            } else {
+                // Remove existing selection for same match if selected
+                const matchIndex = selectedOdds.findIndex(o => o.matchId === matchId);
+                if (matchIndex > -1) selectedOdds.splice(matchIndex, 1);
+                selectedOdds.push({ matchId, matchName, type, val });
+            }
+            updateBetslip();
+            renderMatches(allMatches);
+        };
+
+        const updateBetslip = () => {
+            const badge = document.getElementById("betBadge");
+            if (selectedOdds.length > 0) {
+                badge.style.display = "inline-block";
+                badge.innerText = selectedOdds.length;
+            } else {
+                badge.style.display = "none";
+            }
+        
+
+            const container = document.getElementById("betSlipSelections");
+            if (selectedOdds.length === 0) {
+                container.innerHTML = "<p style='text-align: center; color: #777; padding: 10px;'>No odds selected.</p>";
+                document.getElementById("slipTotalOdds").innerText = "0.00";
+                document.getElementById("slipPayout").innerText = "KES 0.00";
+                return;
+            }
+
+            let totalOdds = 1.0;
+
+            // Table Header
+            let html = `
+                <table style="width: 100%; border-collapse: collapse; font-size: 13px; text-align: left;">
+                    <thead>
+                        <tr style="border-bottom: 2px solid #ddd; color: #555; background-color: #f8f9fa;">
+                            <th style="padding: 6px 4px;">Match</th>
+                            <th style="padding: 6px 4px; text-align: center;">Pick</th>
+                            <th style="padding: 6px 4px; text-align: right;">Odds</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            // Table Rows
+            selectedOdds.forEach(o => {
+                totalOdds *= o.val;
+                html += `
+                    <tr style="border-bottom: 1px solid #eee;">
+                        <td style="padding: 8px 4px; font-weight: 600; color: #333;">${o.matchName}</td>
+                        <td style="padding: 8px 4px; text-align: center; font-weight: light; color: black;">${o.type}</td>
+                        <td style="padding: 8px 4px; text-align: right; font-weight: bold; color: goldenrod;">${o.val.toFixed(2)}</td>
+                    </tr>
+                `;
+            });
+
+            html += `
+                    </tbody>
+                </table>
+            `;
+
+            container.innerHTML = html;
+            document.getElementById("slipTotalOdds").innerText = totalOdds.toFixed(2);
+            calculatePayout();
+        };
+
+        const calculatePayout = () => {
+            const stake = parseFloat(document.getElementById("stakeInput").value) || 0;
+            const totalOdds = parseFloat(document.getElementById("slipTotalOdds").innerText) || 0;
+            document.getElementById("slipPayout").innerText = `KES ${(stake * totalOdds * 0.82).toFixed(2)}`;
+        };
+
+        document.getElementById("stakeInput").addEventListener("input", calculatePayout);
+
+        // Place Bet
+        document.getElementById("btnPlaceBet").addEventListener("click", async () => {
+            if (selectedOdds.length === 0) {
+                showNotification("Please select at least one match odd.");
+                return;
+            }
+            const stake = parseFloat(document.getElementById("stakeInput").value) || 0;
+            const totalOdds = parseFloat(document.getElementById("slipTotalOdds").innerText) || 0;
+
+            const res = await fetch("/api/place_bet", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    stake,
+                    total_odds: totalOdds,
+                    selections: JSON.stringify(selectedOdds)
+                })
+            });
+            const data = await res.json();
+            showNotification(data.message);
+            if (data.success) {
+                selectedOdds = [];
+                updateBetslip();
+                initSession();
+                loadBetsData();
+            }
+        });
+
+        // Fetch User Bets Data
+        const loadBetsData = async () => {
+            const res = await fetch("/api/my_bets");
+            const data = await res.json();
+            if (data.success) {
+                const activeContainer = document.getElementById("activeBetsList");
+                const historyContainer = document.getElementById("historyBetsList");
+                
+                const activeBets = data.bets.filter(b => b.status === "ACTIVE");
+                const historyBets = data.bets.filter(b => b.status !== "ACTIVE");
+
+                activeContainer.innerHTML = activeBets.length ? "" : "No active bets.";
+                activeBets.forEach(b => {
+                    activeContainer.innerHTML += `
+                        <div class="history-item">
+                            <div><strong>Bet #${b.id}</strong> - Stake: KES ${b.stake}</div>
+                            <div>Odds: ${b.total_odds} | Payout: KES ${b.possible_payout}</div>
+                            <button class="btn-danger" style="padding:4px 8px; font-size:12px; width:auto; margin-top:5px;" onclick="cancelBet(${b.id})">Cancel Bet</button>
+                        </div>`;
+                });
+
+                historyContainer.innerHTML = historyBets.length ? "" : "No bet history.";
+                historyBets.forEach(b => {
+                    historyContainer.innerHTML += `
+                        <div class="history-item">
+                            <div><strong>Bet #${b.id}</strong> - Status: <strong>${b.status}</strong></div>
+                            <div>Stake: KES ${b.stake} | Payout: KES ${b.possible_payout}</div>
+                        </div>`;
+                });
+            }
+        };
+
+
+
+        window.cancelBet = async (betId) => {
+            // 1. Ask for confirmation first and store the boolean result
+            const confirmed = await showConfirm("Are you sure you want to cancel this bet?", "Cancel Bet");
+
+            // 2. Only run the network request if the user clicked OK
+            if (confirmed) {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/api/cancel_bet`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ bet_id: betId })
+                    });
+
+                    const resData = await response.json();
+
+                    if (response.ok && resData.success) {
+                        showNotification(resData.message);
+                        loadActiveBets(); // refresh active bets view
+                    } else {
+                        showNotification(resData.message || "Failed to cancel bet.", true);
+                    }
+                } catch (err) {
+                    showNotification("Network error while cancelling bet.", true);
+                }
+            }
+        };
+
+        // Wallet Handlers
+        document.getElementById("btnDeposit")?.addEventListener("click", async () => {
+        const amount = parseFloat(document.getElementById("depositAmount").value) || 0;
+        if (amount <= 0) return showNotification("Please enter a valid amount.", true);
+
+        try {
+            const res = await fetch("/api/deposit", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
+                body: JSON.stringify({ amount })
+            });
+            const data = await res.json();
+        
+            if (data.success) {
+                showNotification("STK Push sent to phone. Enter M-Pesa PIN to complete request.");
+            
+                // Start polling database every 3 seconds for up to 30 seconds to catch balance update
+                let attempts = 0;
+                const pollInterval = setInterval(async () => {
+                    attempts++;
+                    await initSession();
+                    if (typeof loadTransactions === "function") loadTransactions();
+
+                    if (attempts >= 10) {
+                        clearInterval(pollInterval);
+                    }
+                }, 3000);
+            } else {
+                showNotification(data.message || "Deposit failed.Try again and enter pin to complete request", true);
+            }
+        } catch (err) {
+            showNotification("Unable to complete deposit request.Try again.", true);
+        }
+    });
+        document.getElementById("btnWithdraw")?.addEventListener("click", async () => {
+            const amount = parseFloat(document.getElementById("withdrawAmount").value) || 0;
+                if (amount <= 50) return showNotification("Please enter a valid withdrawal amount.Withdrawal amount should be more than kes 49.");
+
+                    try {
+                const res = await fetch("/api/withdraw", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    credentials: "include",
+                    body: JSON.stringify({ amount })
+                });
+                const data = await res.json();
+                showNotification(data.message);
+                if (data.success) {
+                    if (typeof initSession === "function") initSession();
+                    if (typeof loadTransactions === "function") loadTransactions();
+                }
+            } catch (err) {
+                showNotification("Unable to complete withdrawal request. Please try again.");
+            }
+        });
+        const loadTransactions = async () => {
+            const res = await fetch("/api/wallet/transactions");
+            const data = await res.json();
+            if (data.success) {
+                const txList = document.getElementById("transactionsList");
+                txList.innerHTML = data.transactions.length ? "" : "No transactions.";
+                data.transactions.forEach(t => {
+                    txList.innerHTML += `
+                        <div class="history-item">
+                            <div><strong>${t.type}</strong> - KES ${t.amount}</div>
+                            <div style="font-size:11px; color:#666;">${t.created_at} | Status: ${t.status}</div>
+                        </div>`;
+                });
+            }
+        };
+
+        // Account Logout
+        document.getElementById("btnLogout").addEventListener("click", async () => {
+            // 1. Ask for confirmation using custom UI modal
+            const confirmed = await showConfirm(
+                "Are you sure you want to log out of your account?", 
+                "Log Out"
+            );
+
+            // 2. Only run the logout request if the user clicked OK
+            if (confirmed) {
+                try {
+                    const res = await fetch(`${API_BASE_URL}/api/logout`, { method: "POST" });
+                    const data = await res.json();
+            
+                    if (res.ok && data.success) {
+                        window.location.reload();
+                    } else {
+                        showNotification(data.message || "Failed to log out.", true);
+                    }
+                } catch (err) {
+                    showNotification("Network error while logging out.", true);
+                }
+            }
+        });
+
+
+        document.getElementById("btnDeleteAcc").addEventListener("click", async () => {
+        // 1. Ask for confirmation using custom UI modal
+        const confirmed = await showConfirm(
+            "Are you sure you want to permanently delete your account? This action cannot be undone.", 
+            "Delete Account"
+        );
+
+        // 2. Only run the delete request if the user clicked OK
+            if (confirmed) {
+                try {
+                    const res = await fetch(`${API_BASE_URL}/api/delete_account`, { method: "POST" });
+                    const data = await res.json();
+                
+                    showNotification(data.message, !data.success);
+                
+                    if (res.ok && data.success) {
+                        window.location.reload();
+                    }
+                } catch (err) {
+                    showNotification("Network error while deleting account.", true);
+                }
+            }
+        });
+
+        // Bottom Navigation Switcher
+        document.querySelectorAll(".nav-item").forEach(btn => {
+            btn.addEventListener("click", (e) => {
+                document.querySelectorAll(".nav-item").forEach(b => b.classList.remove("active"));
+                document.querySelectorAll(".page-view").forEach(p => p.classList.remove("active"));
+
+                const targetBtn = e.currentTarget;
+                const pageId = targetBtn.getAttribute("data-page");
+
+                targetBtn.classList.add("active");
+                document.getElementById(pageId).classList.add("active");
+
+                if (pageId === "pageBets") loadBetsData();
+                if (pageId === "pageWallet") loadTransactions();
+            });
+        });
+
+
+        // Side Drawer Toggle Logic
+    const menuBtn = document.getElementById("menuBtn");
+    const closeMenuBtn = document.getElementById("closeMenuBtn");
+    const sideMenu = document.getElementById("sideMenu");
+    const sideMenuOverlay = document.getElementById("sideMenuOverlay");
+
+    function openSideMenu() {
+        if (sideMenu && sideMenuOverlay) {
+            sideMenu.classList.add("active");
+            sideMenuOverlay.classList.add("active");
+        }
+    }
+
+    function closeSideMenu() {
+        if (sideMenu && sideMenuOverlay) {
+            sideMenu.classList.remove("active");
+            sideMenuOverlay.classList.remove("active");
+        }
+    }
+
+    if (menuBtn) menuBtn.addEventListener("click", openSideMenu);
+    if (closeMenuBtn) closeMenuBtn.addEventListener("click", closeSideMenu);
+    if (sideMenuOverlay) sideMenuOverlay.addEventListener("click", closeSideMenu);
+
+    // Navigation Handler for Side Menu Links
+    function navigateSideMenu(feature) {
+        closeSideMenu();
+
+        switch (feature) {
+            case "settings":
+                showNotification("Settings opened");
+                // Add settings modal toggle here
+                break;
+            case "about":
+                showNotification("betW v1.0 - Built for speed and simplicity ⚽");
+                break;
+            case "deposit":
+                // Scroll or navigate to deposit section
+                showNotification("Opening Deposit...");
+                break;
+            case "withdraw":
+                showNotification("Opening Withdraw...");
+                break;
+            case "support":
+                showNotification("Contact support via WhatsApp: +254 700 000 000");
+                break;
+            default:
+                showNotification(`Selected ${feature}`);
+        }
+    }
+
+
+
+
+    //AVIATOR
+    const socket = io();
+
+    let appState = {
+        mode: 'DEMO',
+        demoBalance: 1000.00,
+        liveBalance: 0.00,
+        status: 'WAITING',
+        currentMultiplier: 1.00
+    };
+
+    let betPanel1 = { amount: 10.00, status: 'NONE', cashoutMultiplier: 0, autoCashoutEnabled: false, autoCashoutRate: 2.00 };
+    let betPanel2 = { amount: 20.00, status: 'NONE', cashoutMultiplier: 0, autoCashoutEnabled: false, autoCashoutRate: 1.50 };
+
+    let canvas, ctx, particles = [];
+
+    function initCanvas() {
+        canvas = document.getElementById('flightCanvas');
+        ctx = canvas.getContext('2d');
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+    }
+
+    function resizeCanvas() {
+        canvas.width = canvas.getBoundingClientRect().width;
+        canvas.height = canvas.getBoundingClientRect().height;
+    }
+
+    class Particle {
+        constructor(x, y, color) {
+            this.x = x; this.y = y;
+            this.vx = (Math.random() - 0.5) * 4 - 3;
+            this.vy = (Math.random() - 0.5) * 3 + 1;
+            this.size = Math.random() * 5 + 2;
+            this.color = color; this.alpha = 1; this.life = Math.random() * 20 + 20;
+        }
+        update() { this.x += this.vx; this.y += this.vy; this.alpha -= 1 / this.life; }
+        draw(ctx) {
+            ctx.save(); ctx.globalAlpha = Math.max(0, this.alpha);
+            ctx.fillStyle = this.color; ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+        }
+    }
+
+    function drawJet(ctx, x, y) {
+        ctx.save(); ctx.translate(x, y); ctx.rotate(-Math.PI / 9);
+        ctx.fillStyle = '#e11d48'; ctx.beginPath();
+        ctx.moveTo(32, 0); ctx.quadraticCurveTo(10, -8, -18, -6);
+        ctx.lineTo(-22, 6); ctx.quadraticCurveTo(10, 8, 32, 0); ctx.closePath(); ctx.fill();
+        ctx.restore();
+    }
+
+    function renderCanvas() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const w = canvas.width, h = canvas.height;
+
+        if (appState.status === 'IN_FLIGHT') {
+            const progress = Math.min((appState.currentMultiplier - 1) / 10, 1);
+            const currentX = 40 + (w * 0.78 - 40) * Math.min(progress, 1);
+            const currentY = (h - 40) - ((h - 40) - h * 0.22) * Math.min(Math.pow(progress, 0.7), 1);
+
+            ctx.save(); ctx.beginPath(); ctx.moveTo(40, h - 40);
+            ctx.quadraticCurveTo(40 + (currentX - 40) * 0.5, h - 40, currentX, currentY);
+            ctx.strokeStyle = '#e11d48'; ctx.lineWidth = 5; ctx.stroke(); ctx.restore();
+
+            if (Math.random() < 0.7) particles.push(new Particle(currentX - 18, currentY + 4, '#e11d48'));
+            particles.forEach((p, idx) => { p.update(); p.draw(ctx); if (p.alpha <= 0) particles.splice(idx, 1); });
+            drawJet(ctx, currentX, currentY);
+        }
+        requestAnimationFrame(renderCanvas);
+    }
+
+    function updateBalanceDisplay() {
+        const balEl = document.getElementById('userBalance');
+        const labelEl = document.getElementById('balanceLabel');
+        if (appState.mode === 'DEMO') {
+            labelEl.innerText = 'Demo Balance';
+            balEl.innerText = `$${appState.demoBalance.toFixed(2)}`;
+        } else {
+            labelEl.innerText = 'Live Balance';
+            balEl.innerText = `$${appState.liveBalance.toFixed(2)}`;
+        }
+    }
+
+    function renderHistory(history) {
+        let html = '';
+        history.forEach(val => {
+            let badgeClass = val >= 2.0 ? 'bg-purple-950/80 text-purple-300 border-purple-500/40' : 'bg-slate-800 text-sky-400 border-sky-500/30';
+            html += `<span class="px-2.5 py-1 rounded-lg text-xs font-bold border ${badgeClass}">${val.toFixed(2)}x</span>`;
+        });
+        document.getElementById('historyBar').innerHTML = html;
+        document.getElementById('historyBarMobile').innerHTML = html;
+    }
+
+    function updateLiveBetsTable(players) {
+        const tableBody = document.getElementById('liveBetsTable');
+        document.getElementById('liveBetCount').innerText = `${players.length} Bets`;
+        if (!players || players.length === 0) {
+            tableBody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-500 italic">Waiting for bets...</td></tr>`;
+            return;
+        }
+        let html = '';
+        players.forEach(p => {
+            const isCash = p.status === 'CASHED_OUT';
+            html += `<tr class="border-b border-slate-800/40">
+                <td class="p-2.5 font-bold">${p.phone}</td>
+                <td class="p-2.5"><span class="text-[10px] px-1.5 py-0.5 rounded ${p.mode==='LIVE'?'bg-emerald-950 text-emerald-400':'bg-amber-950 text-amber-400'}">${p.mode}</span></td>
+                <td class="p-2.5 font-mono">$${p.amount.toFixed(2)}</td>
+                <td class="p-2.5 font-bold ${isCash ? 'text-emerald-400' : 'text-slate-400'}">${isCash ? p.cashout_multiplier.toFixed(2) + 'x' : '-'}</td>
+                <td class="p-2.5 text-right font-mono font-bold ${isCash ? 'text-emerald-400' : 'text-slate-500'}">${isCash ? '+$' + p.win_amount.toFixed(2) : '-'}</td>
+            </tr>`;
+        });
+        tableBody.innerHTML = html;
+    }
+
+    // Socket Listeners
+    socket.on('round_waiting', (data) => {
+        appState.status = 'WAITING';
+        document.getElementById('countdownBox').classList.remove('hidden');
+        document.getElementById('multiplierBox').classList.add('hidden');
+        document.getElementById('crashedBox').classList.add('hidden');
+        document.getElementById('countdownText').innerText = data.countdown.toFixed(1);
+        updateActionButtonsUI();
+    });
+
+    socket.on('multiplier_update', (data) => {
+        appState.status = 'IN_FLIGHT';
+        appState.currentMultiplier = data.multiplier;
+        document.getElementById('countdownBox').classList.add('hidden');
+        document.getElementById('multiplierBox').classList.remove('hidden');
+        document.getElementById('multiplierText').innerText = `${data.multiplier.toFixed(2)}x`;
+       if (data.players) updateLiveBetsTable(data.players);
+        updateActionButtonsUI();
+    });
+
+    socket.on('round_crashed', (data) => {
+        appState.status = 'CRASHED';
+        document.getElementById('multiplierBox').classList.add('hidden');
+        document.getElementById('crashedBox').classList.remove('hidden');
+        document.getElementById('crashedAtText').innerText = `${data.crash_point.toFixed(2)}x`;
+        renderHistory(data.history);
+        [1, 2].forEach(p => { if (p.status === 'IN_GAME') p.status = 'NONE'; });
+        updateActionButtonsUI();
+    });
+
+    socket.on('bet_accepted', (data) => {
+        const panel = data.panel_id === 1 ? betPanel1 : betPanel2;
+        panel.status = 'IN_GAME';
+        if (data.mode === 'LIVE' && data.new_balance !== null) appState.liveBalance = data.new_balance;
+        else if (data.mode === 'DEMO') appState.demoBalance -= data.amount;
+        updateBalanceDisplay();
+        updateActionButtonsUI();
+    });
+
+    socket.on('cashout_success', (data) => {
+        const panel = data.panel_id === 1 ? betPanel1 : betPanel2;
+        panel.status = 'CASHED_OUT';
+        panel.cashoutMultiplier = data.multiplier;
+        if (data.mode === 'LIVE' && data.new_balance !== null) appState.liveBalance = data.new_balance;
+        else if (data.mode === 'DEMO') appState.demoBalance += data.win_amount;
+        updateBalanceDisplay();
+        updateActionButtonsUI();
+    });
+
+    socket.on('live_bets_update', (data) => { updateLiveBetsTable(data.players); });
+
+    function fetchUserInfo() {
+        fetch('/api/user_info').then(r => r.json()).then(d => {
+            appState.liveBalance = d.live_balance;
+            updateBalanceDisplay();
+        });
+    }
+
+    function updateActionButtonsUI() {
+        [1, 2].forEach(pNum => {
+            const panel = pNum === 1 ? betPanel1 : betPanel2;
+            const btn = document.getElementById(`actionBtn${pNum}`);
+            const textEl = document.getElementById(`actionText${pNum}`);
+            const subtextEl = document.getElementById(`actionSubtext${pNum}`);
+
+            if (panel.status === 'NONE') {
+                btn.className = 'w-full h-16 rounded-xl font-black text-base uppercase bg-emerald-600 hover:bg-emerald-500 text-white';
+                textEl.innerText = 'PLACE BET';
+                subtextEl.innerText = `${panel.amount.toFixed(2)} USD`;
+            } else if (panel.status === 'IN_GAME') {
+                if (appState.status === 'IN_FLIGHT') {
+                    btn.className = 'w-full h-16 rounded-xl font-black text-base uppercase bg-amber-400 text-slate-950 animate-pulse';
+                    textEl.innerText = 'CASH OUT';
+                    subtextEl.innerText = `$${(panel.amount * appState.currentMultiplier).toFixed(2)} USD`;
+                } else {
+                    btn.className = 'w-full h-16 rounded-xl font-black text-base bg-emerald-700/60 text-white';
+                    textEl.innerText = 'BET ACCEPTED';
+                    subtextEl.innerText = 'Waiting...';
+                }
+            }
+        });
+    }
+
+    window.onload = function () {
+        initCanvas();
+        renderCanvas();
+        fetchUserInfo();
+
+        document.getElementById('modeToggleBtn').addEventListener('click', () => {
+            appState.mode = appState.mode === 'DEMO' ? 'LIVE' : 'DEMO';
+            document.getElementById('modeText').innerText = appState.mode;
+            updateBalanceDisplay();
+        });
+
+        document.getElementById('actionBtn1').addEventListener('click', () => {
+            if (betPanel1.status === 'NONE') socket.emit('place_bet', { panel_id: 1, amount: parseFloat(document.getElementById('betAmount1').value), mode: appState.mode });
+            else if (betPanel1.status === 'IN_GAME' && appState.status === 'IN_FLIGHT') socket.emit('manual_cashout', { panel_id: 1 });
+        });
+    };
+            initSession();
+        });
+        
+    </script>
+</body>
+</html>

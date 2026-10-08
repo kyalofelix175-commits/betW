@@ -1,0 +1,211 @@
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #000000;
+  color: #000000;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 94vh;
+}
+
+.casino-container {
+  width: 100%;
+  max-width: 420px;
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  text-align: center;
+}
+
+.casino {
+    font-size: 30px;
+    margin-bottom: 20px;
+    margin-top: 20px;
+    font-weight: bolder; 
+}
+.casino-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  font-size: 10px;
+}
+
+.back-btn {
+  background: transparent;
+  border: none;
+  color: #ff0101;
+  font-size: 25px;
+  cursor: pointer;
+}
+
+.mode-toggle {
+  background: #0f172a;
+  padding: 3px;
+  border-radius: 20px;
+  display: flex;
+}
+
+.mode-btn {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: bold;
+  border-radius: 16px;
+  cursor: pointer;
+}
+
+.mode-btn.active {
+  background: #10ca48;
+  color: #fff;
+}
+
+.balance-card {
+  background: #334155;
+  padding: 12px;
+  border-radius: 10px;
+  margin-bottom: 25px;
+}
+
+.balance-label {
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+.balance-amount {
+  font-weight: bold;
+  font-size: 18px;
+  color: goldenrod;
+  margin-left: 8px;
+}
+
+/* Wheel Layout */
+.wheel-wrapper {
+  position: relative;
+  width: 340px;
+  height: 340px;
+  margin: 0 auto 20px auto;
+  margin-bottom: 100px;
+  margin-top: 100px
+}
+
+.pointer-arrow {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 14px solid transparent;
+  border-right: 14px solid transparent;
+  border-top: 24px solid #000000;
+  z-index: 10;
+}
+
+#wheelCanvas {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+}
+
+.center-spin-btn {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #e11d48 0%, #9f1239 100%);
+  border: 4px solid #f1c40f;
+  color: #ffffff;
+  font-weight: bold;
+  font-size: 15px;
+  cursor: pointer;
+  z-index: 5;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.6);
+}
+
+.center-spin-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.status-msg {
+  font-size: 16px;
+  color: rgb(15, 235, 15);
+  font-weight: 1000;
+  min-height: 20px;
+}
+
+/* 3D Wheel Stage */
+.wheel-3d-stage {
+  perspective: 1000px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 15px 0 25px 0;
+}
+
+.wheel-wrapper {
+  position: relative;
+  width: 360px;
+  height: 360px;
+  transform-style: preserve-3d;
+  transform: rotateX(16deg); /* 3D Perspective Tilt */
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
+  border-radius: 50%;
+}
+
+.pointer-arrow {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 16px solid transparent;
+  border-right: 16px solid transparent;
+  border-top: 28px solid #000000;
+  filter: drop-shadow(0px 4px 6px rgba(0,0,0,0.8));
+  z-index: 20;
+}
+
+#wheelCanvas {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  display: block;
+  will-change: transform;
+}
+
+.center-spin-btn {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #ff2a5f 0%, #a7002c 100%);
+  border: 4px solid #ffeaa7;
+  color: #ffffff;
+  font-weight: bold;
+  font-size: 15px;
+  cursor: pointer;
+  z-index: 10;
+  box-shadow: inset 0 3px 6px rgba(255,255,255,0.4), 0 8px 18px rgba(0,0,0,0.8);
+}
+
+.center-spin-btn:active {
+  transform: translate(-50%, -48%) scale(0.96);
+}
+.info {
+    font-size: 12px;
+    
+}

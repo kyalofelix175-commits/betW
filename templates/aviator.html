@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aviator Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/aviator.css') }}">
+</head>
+<body id="aviatorPage" class="min-h-screen bg-slate-950 flex flex-col justify-between text-slate-200 font-sans">
+
+    <!-- Header Bar -->
+    <header class="w-full bg-slate-900 border-b border-slate-800 px-4 py-3 sticky top-0 z-30 flex justify-between items-center shadow-lg">
+        <div class="flex items-center space-x-3">
+            <div class="bg-gradient-to-tr from-rose-600 to-rose-400 p-2 rounded-xl flex items-center justify-center shadow-lg shadow-rose-900/30">
+                <i class="fa-solid fa-plane-up text-white text-xl transform -rotate-12"></i>
+            </div>
+            <div>
+                <h1 class="font-extrabold text-xl tracking-wider text-white flex items-center gap-2">
+                    AVIATOR <span class="text-xs px-2 py-0.5 rounded bg-rose-600 text-white font-semibold">PRO</span>
+                </h1>
+                <p class="text-[10px] text-slate-400">Server Synchronized</p>
+            </div>
+        </div>
+
+        <div id="historyBar" class="hidden md:flex items-center space-x-2 overflow-x-auto max-w-md px-2 py-1 scrollbar-none"></div>
+
+        <div class="flex items-center space-x-3">
+            <button id="modeToggleBtn" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 px-3 py-1.5 rounded-xl flex items-center space-x-2 transition">
+                <span id="modeBadge" class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
+                <span id="modeText" class="text-xs font-bold text-amber-400 uppercase">DEMO</span>
+            </button>
+
+            <div class="bg-slate-900/80 px-4 py-1.5 rounded-xl border border-slate-800 flex items-center space-x-3">
+                <div class="text-right">
+                    <p id="balanceLabel" class="text-[10px] text-slate-400 font-medium uppercase tracking-wider">Demo Balance</p>
+                    <p id="userBalance" class="text-base font-bold text-emerald-400">$1,000.00</p>
+                </div>
+                <button id="depositBtn" title="Reset Balance" class="bg-emerald-600 hover:bg-emerald-500 text-white p-1.5 rounded-lg text-xs transition">
+                    <i class="fa-solid fa-rotate-right"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="md:hidden bg-slate-950 px-3 py-1.5 border-b border-slate-800 flex items-center space-x-2 overflow-x-auto scrollbar-none" id="historyBarMobile"></div>
+
+    <!-- Main Section -->
+    <main class="flex-1 max-w-5xl w-full mx-auto p-2 sm:p-4 flex flex-col space-y-4">
+            
+        <!-- Canvas Stage -->
+        <div class="relative w-full h-[360px] sm:h-[420px] bg-slate-900 rounded-2xl border border-slate-800 overflow-hidden shadow-2xl flex items-center justify-center">
+            <canvas id="flightCanvas" class="absolute inset-0 w-full h-full z-10"></canvas>
+
+            <div id="stageOverlay" class="absolute z-20 text-center pointer-events-none flex flex-col items-center justify-center">
+                <div id="countdownBox" class="flex flex-col items-center">
+                    <div class="relative flex items-center justify-center">
+                        <svg class="w-24 h-24 transform -rotate-90">
+                            <circle cx="48" cy="48" r="40" stroke="currentColor" stroke-width="6" class="text-slate-800" fill="transparent" />
+                            <circle id="countdownCircle" cx="48" cy="48" r="40" stroke="currentColor" stroke-width="6" class="text-rose-600 transition-all duration-100" fill="transparent" stroke-dasharray="251.2" stroke-dashoffset="0" />
+                        </svg>
+                        <span id="countdownText" class="absolute text-3xl font-extrabold text-white">5.0</span>
+                    </div>
+                    <p class="text-xs uppercase tracking-widest text-slate-400 mt-2 font-bold animate-pulse">Waiting for Next Round...</p>
+                </div>
+
+                <div id="multiplierBox" class="hidden flex-col items-center">
+                    <span id="multiplierText" class="text-5xl sm:text-7xl font-black text-white tracking-tight drop-shadow-lg font-mono">1.00x</span>
+                    <span class="text-xs font-semibold uppercase tracking-widest text-emerald-400 mt-1">CURRENT MULTIPLIER</span>
+                </div>
+
+                <div id="crashedBox" class="hidden flex-col items-center">
+                    <h2 class="text-4xl sm:text-6xl font-black text-rose-600 tracking-tight drop-shadow-xl animate-bounce">FLEW AWAY!</h2>
+                    <div class="mt-2 bg-rose-600/20 border border-rose-600/50 px-4 py-1.5 rounded-xl">
+                        <span class="text-xs text-slate-300">Crashed at</span>
+                        <span id="crashedAtText" class="text-xl font-bold text-white ml-1">1.00x</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Bet Panel 1 -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3 sm:p-4 flex flex-col justify-between">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-xs font-bold uppercase text-slate-400">Bet Panel 1</span>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-[11px] text-slate-400 font-medium">Auto Cashout</span>
+                        <input type="checkbox" id="autoCashoutToggle1" class="rounded bg-slate-800 border-slate-700 text-emerald-600 cursor-pointer">
+                        <input type="number" id="autoCashoutRate1" value="2.00" step="0.1" min="1.01" disabled class="w-16 bg-slate-950 border border-slate-800 text-white text-xs text-center rounded py-0.5 opacity-50">
+                    </div>
+                </div>
+                <div class="grid grid-cols-12 gap-2 items-center">
+                    <div class="col-span-6 flex flex-col space-y-1.5">
+                        <input type="number" id="betAmount1" value="10.00" step="1" min="1" class="w-full bg-slate-950 border border-slate-800 rounded-xl py-2 text-center text-sm font-bold text-white">
+                        <div class="grid grid-cols-4 gap-1">
+                            <button class="quick-preset-1 bg-slate-800 hover:bg-slate-700 text-[10px] py-1 rounded text-slate-300 transition" data-val="5">+5</button>
+                            <button class="quick-preset-1 bg-slate-800 hover:bg-slate-700 text-[10px] py-1 rounded text-slate-300 transition" data-val="10">+10</button>
+                            <button class="quick-preset-1 bg-slate-800 hover:bg-slate-700 text-[10px] py-1 rounded text-slate-300 transition" data-val="25">+25</button>
+                            <button class="quick-preset-1 bg-slate-800 hover:bg-slate-700 text-[10px] py-1 rounded text-slate-300 transition" data-val="100">+100</button>
+                        </div>
+                    </div>
+                    <div class="col-span-6">
+                        <button id="actionBtn1" class="w-full h-16 rounded-xl font-black text-base uppercase bg-emerald-600 hover:bg-emerald-500 text-white flex flex-col items-center justify-center transition">
+                            <span id="actionText1">PLACE BET</span>
+                            <span id="actionSubtext1" class="text-[11px] font-normal opacity-90">10.00 USD</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bet Panel 2 -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3 sm:p-4 flex flex-col justify-between">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-xs font-bold uppercase text-slate-400">Bet Panel 2</span>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-[11px] text-slate-400 font-medium">Auto Cashout</span>
+                        <input type="checkbox" id="autoCashoutToggle2" class="rounded bg-slate-800 border-slate-700 text-emerald-600 cursor-pointer">
+                        <input type="number" id="autoCashoutRate2" value="1.50" step="0.1" min="1.01" disabled class="w-16 bg-slate-950 border border-slate-800 text-white text-xs text-center rounded py-0.5 opacity-50">
+                    </div>
+                </div>
+                <div class="grid grid-cols-12 gap-2 items-center">
+                    <div class="col-span-6 flex flex-col space-y-1.5">
+                        <input type="number" id="betAmount2" value="20.00" step="1" min="1" class="w-full bg-slate-950 border border-slate-800 rounded-xl py-2 text-center text-sm font-bold text-white">
+                        <div class="grid grid-cols-4 gap-1">
+                            <button class="quick-preset-2 bg-slate-800 hover:bg-slate-700 text-[10px] py-1 rounded text-slate-300 transition" data-val="5">+5</button>
+                            <button class="quick-preset-2 bg-slate-800 hover:bg-slate-700 text-[10px] py-1 rounded text-slate-300 transition" data-val="10">+10</button>
+                            <button class="quick-preset-2 bg-slate-800 hover:bg-slate-700 text-[10px] py-1 rounded text-slate-300 transition" data-val="25">+25</button>
+                            <button class="quick-preset-2 bg-slate-800 hover:bg-slate-700 text-[10px] py-1 rounded text-slate-300 transition" data-val="100">+100</button>
+                        </div>
+                    </div>
+                    <div class="col-span-6">
+                        <button id="actionBtn2" class="w-full h-16 rounded-xl font-black text-base uppercase bg-emerald-600 hover:bg-emerald-500 text-white flex flex-col items-center justify-center transition">
+                            <span id="actionText2">PLACE BET</span>
+                            <span id="actionSubtext2" class="text-[11px] font-normal opacity-90">20.00 USD</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Live All Bets List Section -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl">
+            <h3 class="text-xs font-bold uppercase text-slate-400 mb-3 tracking-wider flex items-center justify-between">
+                <span>Live Bets This Round</span>
+                <span id="liveBetCount" class="text-rose-500 font-extrabold">0 Bets</span>
+            </h3>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs text-slate-300">
+                    <thead class="bg-slate-950 text-slate-500 uppercase text-[10px]">
+                        <tr>
+                            <th class="p-2.5 rounded-l-lg">User</th>
+                            <th class="p-2.5">Mode</th>
+                            <th class="p-2.5">Bet ($)</th>
+                            <th class="p-2.5">Multiplier</th>
+                            <th class="p-2.5 rounded-r-lg text-right">Payout</th>
+                        </tr>
+                    </thead>
+                    <tbody id="liveBetsTable" class="divide-y divide-slate-800/50">
+                        <tr>
+                            <td colspan="5" class="p-4 text-center text-slate-500 italic">Waiting for bets...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <div id="toastContainer" class="fixed bottom-4 right-4 z-50 flex flex-col space-y-2 pointer-events-none"></div>
+
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script src="{{ url_for('static', filename='js/aviator.js') }}"></script>
+</body>
+</html>

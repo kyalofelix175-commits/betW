@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lucky Spin Casino</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="/static/css/casino.css" />
+</head>
+<body>
+
+  <div class="casino-container">
+    <header class="casino-header">
+      <button class="back-btn" onclick="window.location.href='/'">
+        <i class="fa-solid fa-arrow-left"></i>
+      </button>
+      <h2>LUCKY SPIN CASINO</h2>
+      <div class="mode-toggle">
+        <button id="btnDemo" class="mode-btn active" onclick="switchMode('demo')">Demo</button>
+        <button id="btnReal" class="mode-btn" onclick="switchMode('real')">Live</button>
+      </div>
+    </header>
+
+    <div class="balance-card">
+      <span class="balance-label">Balance:</span>
+      <span class="balance-amount" id="balanceDisplay">KES 1000.00 (Demo)</span>
+    </div>
+
+    <!-- 3D Wheel Structure Wrapper -->
+    <div class="wheel-3d-stage">
+      <div class="wheel-wrapper">
+        <div class="pointer-arrow"></div>
+        <canvas id="wheelCanvas" width="360" height="360"></canvas>
+        <button class="center-spin-btn" id="spinBtn" onclick="playSpin()">
+          SPIN<br /><small style="font-size: 10px;">KES 10</small>
+        </button>
+      </div>
+    </div>
+
+    <div class="status-msg" id="statusMsg">Tap SPIN to play for KES 10!</div>
+    <div class="info">
+        <p>This CASINO is a product of betW</p>
+    </div>
+  </div>
+
+<script>
+  let currentMode = 'demo';
+  let demoBalance = 1000.00;
+  let realBalance = 0.00;
+  let isSpinning = false;
+  let currentRotation = 0;
+
+  const canvas = document.getElementById('wheelCanvas');
+  const ctx = canvas.getContext('2d');
+
+  const segments = [
+    { text: "10x",  bg: "#e67e22", color: "#ffffff" },
+    { text: "0.1x", bg: "#2ecc71", color: "#ffffff" },
+    { text: "2x",   bg: "#00d2d3", color: "#ffffff" },
+    { text: "0.5x", bg: "#9b59b6", color: "#ffffff" },
+    { text: "5x",   bg: "#e84393", color: "#ffffff" },
+    { text: "0.0x", bg: "#81ecec", color: "#2d3436" },
+    { text: "1.5x", bg: "#ff7675", color: "#ffffff" },
+    { text: "0.2x", bg: "#fdcb6e", color: "#2d3436" },
+    { text: "3x",   bg: "#e67e22", color: "#ffffff" },
+    { text: "0.8x", bg: "#2ecc71", color: "#ffffff" },
+    { text: "10x",  bg: "#00d2d3", color: "#ffffff" },
+    { text: "0.1x", bg: "#9b59b6", color: "#ffffff" }
+  ];
+
+  const numSegments = segments.length;
+  const sliceAngleDeg = 360 / numSegments;
+  const arcSize = (2 * Math.PI) / numSegments;
+
+  function drawWheel() {
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+    const radius = centerX - 18;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // 1. Render Slices with radial lighting gradient for 3D depth
+    segments.forEach((seg, i) => {
+      const angle = i * arcSize;
+    
+      ctx.beginPath();
+      ctx.moveTo(centerX, centerY);
+      ctx.arc(centerX, centerY, radius, angle, angle + arcSize);
+      ctx.lineTo(centerX, centerY);
+
+      const radGrad = ctx.createRadialGradient(centerX, centerY, 20, centerX, centerY, radius);
+      radGrad.addColorStop(0, '#ffffff33');
+      radGrad.addColorStop(0.7, seg.bg);
+      radGrad.addColorStop(1, '#00000044');
+      ctx.fillStyle = radGrad;
+      ctx.fill();
+
+      // Divider Lines
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.4)";
+      ctx.stroke();
+
+      // Text Render
+      ctx.save();
+      ctx.translate(centerX, centerY);
+      ctx.rotate(angle + arcSize / 2);
+      ctx.textAlign = "right";
+      ctx.fillStyle = seg.color;
+      ctx.shadowColor = "rgba(0,0,0,0.8)";
+      ctx.shadowBlur = 4;
+      ctx.font = "bold 16px sans-serif";
+      ctx.fillText(seg.text, radius - 22, 6);
+      ctx.restore();
+    });
+
+    // 2. Outer Metallic 3D Gold Ring
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, radius + 6, 0, 2 * Math.PI);
+    const ringGrad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+    ringGrad.addColorStop(0, '#ffeaa7');
+    ringGrad.addColorStop(0.3, '#fdcb6e');
+    ringGrad.addColorStop(0.5, '#d63031');
+    ringGrad.addColorStop(0.7, '#fdcb6e');
+    ringGrad.addColorStop(1, '#ffeaa7');
+    ctx.lineWidth = 14;
+    ctx.strokeStyle = ringGrad;
+    ctx.stroke();
+    ctx.restore();
+
+    // 3. Inner Metallic Bevel Ring
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, 45, 0, 2 * Math.PI);
+    ctx.fillStyle = "#2d3436";
+    ctx.fill();
+    ctx.lineWidth = 4;
+    ctx.strokeStyle = "#fdcb6e";
+    ctx.stroke();
+  }
+
+  function fetchUserInfo() {
+    fetch('/api/user_info')
+      .then(res => res.json())
+      .then(data => {
+        realBalance = data.live_balance || 0.00;
+        updateBalanceDisplay();
+      })
+      .catch(() => updateBalanceDisplay());
+  }
+
+  function updateBalanceDisplay() {
+    const disp = document.getElementById('balanceDisplay');
+    if (currentMode === 'demo') {
+      disp.innerText = `KES ${demoBalance.toFixed(2)} (Demo)`;
+    } else {
+      disp.innerText = `KES ${realBalance.toFixed(2)}`;
+    }
+  }
+
+  function switchMode(mode) {
+    if (isSpinning) return;
+    currentMode = mode;
+    document.getElementById('btnDemo').classList.toggle('active', mode === 'demo');
+    document.getElementById('btnReal').classList.toggle('active', mode === 'real');
+    updateBalanceDisplay();
+  }
+
+  function playSpin() {
+    if (isSpinning) return;
+
+    if (currentMode === 'demo' && demoBalance < 10) {
+      document.getElementById('statusMsg').innerText = "Insufficient Demo Balance!";
+      return;
+    }
+
+    if (currentMode === 'real' && realBalance < 10) {
+      document.getElementById('statusMsg').innerText = "Insufficient Funds! Minimum spin: KES 10";
+      return;
+    }
+
+    isSpinning = true;
+    document.getElementById('spinBtn').disabled = true;
+    document.getElementById('statusMsg').innerText = "Spinning...";
+
+    fetch('/api/casino/spin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mode: currentMode })
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.error) {
+        document.getElementById('statusMsg').innerText = data.error;
+        isSpinning = false;
+        document.getElementById('spinBtn').disabled = false;
+        return;
+      }
+
+      animateWheel(data.segment_index, () => {
+        if (currentMode === 'demo') {
+          demoBalance = data.new_balance;
+        } else {
+          realBalance = data.new_balance;
+        }
+        updateBalanceDisplay();
+        
+        const winAmount = data.payout;
+        if (winAmount > 10) {
+          document.getElementById('statusMsg').innerText = `WINNER! Multiplier ${data.multiplier}x (+KES ${winAmount.toFixed(2)})`;
+        } else if (winAmount > 0) {
+          document.getElementById('statusMsg').innerText = `Won KES ${winAmount.toFixed(2)} (${data.multiplier}x)`;
+        } else {
+          document.getElementById('statusMsg').innerText = `No win this spin (0x)`;
+        }
+
+        isSpinning = false;
+        document.getElementById('spinBtn').disabled = false;
+      });
+    })
+    .catch(() => {
+      document.getElementById('statusMsg').innerText = "Network Error!";
+      isSpinning = false;
+      document.getElementById('spinBtn').disabled = false;
+    });
+  }
+
+  function animateWheel(targetIndex, callback) {
+    const segmentCenterDeg = (targetIndex * sliceAngleDeg) + (sliceAngleDeg / 2);
+    
+    let targetAngle = 270 - segmentCenterDeg;
+    if (targetAngle < 0) {
+      targetAngle += 360;
+    }
+
+    const currentMod = currentRotation % 360;
+    let distance = targetAngle - currentMod;
+    if (distance <= 0) {
+      distance += 360;
+    }
+
+    const totalSpin = distance + (30 * 360);
+    currentRotation += totalSpin;
+
+    canvas.style.transition = "transform 4s cubic-bezier(0.15, 0.90, 0.30, 1.00)";
+    canvas.style.transform = `rotate(${currentRotation}deg)`;
+
+    setTimeout(() => {
+      callback();
+    }, 4100);
+  }
+
+  drawWheel();
+  fetchUserInfo();
+</script>
+</body>
+</html>
