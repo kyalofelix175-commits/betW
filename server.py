@@ -26,9 +26,9 @@ CORS(
     origins=["http://192.168.1.121:5500", "http://127.0.0.1:5500"],
 )
 
-ODDS_API_KEY = os.getenv("ODDS_API_KEY", "993f927dfcb003e19c0605bfbed125b")
-MPESA_CONSUMER_KEY = os.getenv("MPESA_CONSUMER_KEY", "wZ0PSLUA8EPTxHyR8VPnwLjt5wYrpD5JlRV7LnwxyeoOTTaa")
-MPESA_CONSUMER_SECRET = os.getenv("MPESA_CONSUMER_SECRET", "MfvCI8YAuJ3rCjAoD3FzzGTPFmfs9OHSftZFob4I10CO7dp04K5AkJunNW2yr4zE")
+ODDS_API_KEY = os.getenv("ODDS_API_KEY")
+MPESA_CONSUMER_KEY = os.getenv("MPESA_CONSUMER_KEY")
+MPESA_CONSUMER_SECRET = os.getenv("MPESA_CONSUMER_SECRET")
 
 def init_db():
     conn = sqlite3.connect("users.db")
