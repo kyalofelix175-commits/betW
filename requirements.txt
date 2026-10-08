@@ -2,4 +2,6 @@ Flask
 gunicorn
 requests
 flask_cors
-crypto
+pycryptodome
+flask-socketio
+eventlet
