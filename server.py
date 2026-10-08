@@ -461,7 +461,7 @@ INITIATOR_NAME = "testapi"  # Sandbox Initiator
 INITIATOR_PASSWORD = "Safaricom2026!"
 
 # Set your public Ngrok domain here so Safaricom can call your webhook
-CALLBACK_BASE_URL = "https://your-ngrok-subdomain.ngrok-free.app"
+CALLBACK_BASE_URL = "https://betw.onrender.com"
 
 BASE_URL = (
     "https://sandbox.safaricom.co.ke"
